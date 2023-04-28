@@ -14,6 +14,7 @@ logging.basicConfig(
 )
 
 # init default config
+port = 22212
 api_token = ''
 webhook_url = ''
 super_secret_password = ''
@@ -25,7 +26,7 @@ if not os.path.exists('bot.conf'):
     print('Bot config file is missing !')
     # create empty config file
     with open('bot.conf', 'w') as conf:
-        conf.write('api_token=13750908:ArMiN-AFD-l30T-T0KeN\nwebhook_url=https://armin.com:88/afd/ytbot\npass=SUPER_SECRET\nout_dir=/home/Downloads/\ndl_url=https://armin.com/afd/files/')
+        conf.write('port=22212\napi_token=13750908:ArMiN-AFD-l30T-T0KeN\nwebhook_url=https://armin.com:88/afd/ytbot\npass=SUPER_SECRET\nout_dir=/home/Downloads/\ndl_url=https://armin.com/afd/files/')
     exit()
 
 # parse config file
@@ -36,6 +37,8 @@ with open('bot.conf', 'r') as conf:
         cl = c.split('=')
         config[cl[0]] = cl[1]
     # set configs
+    if 'port' in config:
+        port = int(config['api_token'].strip())
     if 'api_token' in config:
         api_token = config['api_token'].strip()
     if 'webhook_url' in config:
@@ -282,6 +285,6 @@ app.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), check_vid))
 app.add_handler(CallbackQueryHandler(download_vid))
 
 # start the webhook
-app.run_webhook(port=88, url_path=api_token, webhook_url=webhook_url, stop_signals=None)
+app.run_webhook(port=port, webhook_url=webhook_url, stop_signals=None)
 
 # app.run_polling(stop_signals=None)
