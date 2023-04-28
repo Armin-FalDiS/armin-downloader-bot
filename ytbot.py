@@ -5,7 +5,7 @@ import subprocess
 import re
 from pathlib import Path
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import ApplicationBuilder, CallbackContext, CommandHandler, MessageHandler, filters, CallbackQueryHandler
+from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler, filters, CallbackQueryHandler
 
 # set up logger
 logging.basicConfig(
@@ -86,14 +86,14 @@ def new_vip(id: int):
     update_vip_list()
 
 
-async def bouncer(update: Update, context: CallbackContext.DEFAULT_TYPE):
+async def bouncer(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handler prompting the user for password
     """
     if update.effective_chat and update.effective_user:
         await context.bot.send_message(update.effective_chat.id, 'This is my turf G. Do you even know the super secret password ?')
 
 
-async def vip_maker(update: Update, context: CallbackContext.DEFAULT_TYPE):
+async def vip_maker(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handler that puts the user in the whitelist
     """
     if update.effective_chat and update.effective_user:
@@ -105,7 +105,7 @@ async def vip_maker(update: Update, context: CallbackContext.DEFAULT_TYPE):
             await update.message.reply_text('Yeah yeah yeah I heard you the first time go right ahead')
 
 
-async def start(update: Update, context: CallbackContext.DEFAULT_TYPE):
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handler prompting user for URL if they are in the whitelist
     """
     if update.effective_chat and update.effective_user:
@@ -114,7 +114,7 @@ async def start(update: Update, context: CallbackContext.DEFAULT_TYPE):
         await context.bot.send_message(update.effective_chat.id, 'Yo ! Hit me up with da URL and I will get right on it b-word !!')
 
 
-async def check_vid(update: Update, context: CallbackContext.DEFAULT_TYPE):
+async def check_vid(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handler returning available qualities of the inputed youtube URL
     allowing the user to choose using buttons
 
@@ -187,7 +187,7 @@ async def check_vid(update: Update, context: CallbackContext.DEFAULT_TYPE):
             await ans.edit_text('What be the Quality G ?', reply_markup=InlineKeyboardMarkup(keyboard))
 
 
-async def download_vid(update: Update, context: CallbackContext.DEFAULT_TYPE):
+async def download_vid(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handler in charge of saving the requested file to the disk
     and sending it to the user
     """
