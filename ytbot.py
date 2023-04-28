@@ -57,6 +57,7 @@ vip = []
 # init container which keeps requests
 requests = {}
 
+
 def not_vip(id: int) -> bool:
     """Function checking whether the user is in the whitelist.
 
@@ -125,7 +126,7 @@ async def check_vid(update: Update, context: ContextTypes.DEFAULT_TYPE):
             return
 
         ans = await update.message.reply_text('Wait for it...')
-        
+
         # fetch formats
         with YoutubeDL() as ydl:
             formats = []
@@ -179,8 +180,9 @@ async def check_vid(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 # keep request in ram
                 options.append([id, update.message.text, is_video])
                 # buttons carry the id given by system for the user
-                keyboard.append([InlineKeyboardButton(label, callback_data=len(options) - 1)])
-            
+                keyboard.append([InlineKeyboardButton(
+                    label, callback_data=len(options) - 1)])
+
             # keep options for the user (each user can only have one active request)
             requests[update.effective_user.id] = options
             # prompt use to choose the quality
@@ -195,12 +197,13 @@ async def download_vid(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if not_vip(update.effective_user.id):
             return
         query = update.callback_query
-        
+
         await query.answer('Checking...')
-        
+
         try:
             # fetch the file's info from request container of the user using the index
-            [id, url, is_video] = requests.pop(update.effective_user.id)[int(query.data)]
+            [id, url, is_video] = requests.pop(update.effective_user.id)[
+                int(query.data)]
         except:
             await query.edit_message_text('Unacceptable')
             return
@@ -224,12 +227,13 @@ async def download_vid(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         # new file name replacing unwanted chars with underscore
         fn = re.sub('[\s,#,\',"]', '_', filename)
-        
+
         # rename file
         os.rename(filename, fn)
 
         # extract duration
-        output = subprocess.run(['ffprobe', '-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=duration', '-of', 'default=noprint_wrappers=1:nokey=1', fn], stdout=subprocess.PIPE )
+        output = subprocess.run(['ffprobe', '-v', 'error', '-select_streams', 'v:0', '-show_entries',
+                                'stream=duration', '-of', 'default=noprint_wrappers=1:nokey=1', fn], stdout=subprocess.PIPE)
         duration = int(float(output.stdout.decode('ascii')))
 
         # Telegram has a limit of 50 MB for bot upload
@@ -240,10 +244,11 @@ async def download_vid(update: Update, context: ContextTypes.DEFAULT_TYPE):
             # upload file to telegram
             await query.edit_message_text(text='Uploading to telegram...')
 
-            if is_video:                
+            if is_video:
                 # extract thumbnail
                 thumbnail_fn = fn[:fn.rfind('.')] + '.jpg'
-                subprocess.run(['ffmpeg', '-i', fn, '-ss', '1', '-vframes', '1', thumbnail_fn], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                subprocess.run(['ffmpeg', '-i', fn, '-ss', '1', '-vframes', '1',
+                               thumbnail_fn], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
                 # send file as video
                 await context.bot.send_video(update.effective_chat.id, open(fn, 'rb'), duration=duration, thumb=open(thumbnail_fn, 'rb'))
@@ -267,24 +272,16 @@ else:
     # create whitelist file if it doesn't exist
     update_vip_list()
 
-# check for the existence of certificate files
-if not os.path.exists('private.key'):
-    print('A private key must exist in private.key file')
-    exit(-10)
-if not os.path.exists('cert.pem'):
-    print('A self signed certificate needs to exist in cert.pem file')
-    exit(-10)
-
 app = ApplicationBuilder().token(api_token).build()
 app.add_handler(CommandHandler('start', start))
 app.add_handler(CommandHandler('imvip', bouncer))
 # password is checked using Text filter
-app.add_handler(MessageHandler(filters.Text([super_secret_password]) & (~filters.COMMAND), vip_maker))
+app.add_handler(MessageHandler(filters.Text(
+    [super_secret_password]) & (~filters.COMMAND), vip_maker))
 app.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), check_vid))
 app.add_handler(CallbackQueryHandler(download_vid))
 
 # start the webhook
-app.run_webhook(listen='0.0.0.0', port=8443, url_path=api_token,
-              key='private.key', cert='cert.pem', webhook_url=webhook_url, stop_signals=None)
+app.run_webhook(port=8443, url_path=api_token, webhook_url=webhook_url, stop_signals=None)
 
-#app.run_polling(stop_signals=None)
+# app.run_polling(stop_signals=None)

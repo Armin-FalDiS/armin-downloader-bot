@@ -1,2 +1,6 @@
 bot.conf
 viplist.txt
+bin
+lib
+include
+pyvenv.cfg
