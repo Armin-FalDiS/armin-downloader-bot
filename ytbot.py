@@ -24,8 +24,8 @@ dl_url = ''
 if not os.path.exists('bot.conf'):
     print('Bot config file is missing !')
     # create empty config file
-    with open('bot.conf', 'w') as co:
-        co.write('api_token=\npass=\nout_dir=\ndl_url=')
+    with open('bot.conf', 'w') as conf:
+        conf.write('api_token=13750908:ArMiN-AFD-l30T-T0KeN\nwebhook_url=https://armin.com:88/afd/ytbot\npass=SUPER_SECRET\nout_dir=/home/Downloads/\ndl_url=https://armin.com/afd/files/')
     exit()
 
 # parse config file
@@ -168,12 +168,12 @@ async def check_vid(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 elif 'filesize_approx' in f:
                     size = f['filesize_approx']
                 if size == 0:
-                    size = '???'
+                    size = '??'
                 else:
                     try:
                         size = '{:0.2f}'.format(int(size) * 0.000001)
                     except:
-                        size = '???'
+                        size = '??'
                 ext = f['ext']
                 # keyboard button lablel
                 label = '{} - .{} ({} MB)'.format(format, ext, size)
