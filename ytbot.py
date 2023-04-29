@@ -38,7 +38,7 @@ with open('bot.conf', 'r') as conf:
         config[cl[0]] = cl[1]
     # set configs
     if 'port' in config:
-        port = int(config['api_token'].strip())
+        port = int(config['port'].strip())
     if 'api_token' in config:
         api_token = config['api_token'].strip()
     if 'webhook_url' in config:
