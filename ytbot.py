@@ -265,6 +265,16 @@ async def download_vid(update: Update, context: ContextTypes.DEFAULT_TYPE):
             # clean up message
             await query.delete_message()
 
+async def cleanup(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Cleans up the download directory
+    """
+    if update.effective_chat and update.effective_user:
+        if not_vip(update.effective_user.id):
+            return
+        
+        subprocess.run(['rm', '-rf', out_dir + '*'])
+
+        await update.message.reply_text('All cleaned up!')
 
 if os.path.exists('viplist.txt'):
     # read the whitelist
@@ -278,6 +288,7 @@ else:
 app = ApplicationBuilder().token(api_token).build()
 app.add_handler(CommandHandler('start', start))
 app.add_handler(CommandHandler('imvip', bouncer))
+app.add_handler(CommandHandler('cleanup', cleanup))
 # password is checked using Text filter
 app.add_handler(MessageHandler(filters.Text(
     [super_secret_password]) & (~filters.COMMAND), vip_maker))
