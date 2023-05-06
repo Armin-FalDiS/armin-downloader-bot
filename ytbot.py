@@ -272,7 +272,7 @@ async def cleanup(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if not_vip(update.effective_user.id):
             return
         
-        subprocess.run(['rm', '-rf', out_dir + '*'])
+        subprocess.run('rm -rf ' + os.path.join(out_dir, '*'), shell=True)
 
         await update.message.reply_text('All cleaned up!')
 
