@@ -89,14 +89,6 @@ def new_vip(id: int):
     vip.append(id)
     update_vip_list()
 
-
-async def bouncer(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handler prompting the user for password
-    """
-    if update.effective_chat and update.effective_user:
-        await context.bot.send_message(update.effective_chat.id, 'This is my turf G. Do you even know the super secret password ?')
-
-
 async def vip_maker(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handler that puts the user in the whitelist
     """
@@ -114,8 +106,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
     if update.effective_chat and update.effective_user:
         if not_vip(update.effective_user.id):
-            return
-        await context.bot.send_message(update.effective_chat.id, 'Yo ! Hit me up with da URL and I will get right on it b-word !!')
+            await context.bot.send_message(update.effective_chat.id, 'This is my turf G. Do you even know the super secret password ?')
+        else:
+            await context.bot.send_message(update.effective_chat.id, 'Yo ! Hit me up with da URL and I will get right on it b-word !!')
 
 
 async def check_vid(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -287,7 +280,6 @@ else:
 
 app = ApplicationBuilder().token(api_token).build()
 app.add_handler(CommandHandler('start', start))
-app.add_handler(CommandHandler('imvip', bouncer))
 app.add_handler(CommandHandler('cleanup', cleanup))
 # password is checked using Text filter
 app.add_handler(MessageHandler(filters.Text(
