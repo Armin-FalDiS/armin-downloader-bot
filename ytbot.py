@@ -161,28 +161,29 @@ async def check_vid(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     continue
                 # grab format identifier (used for download)
                 id = f['format_id']
-                # extract format (used for button label)
-                format = id
-                if 'format' in f:
-                    format = f['format']
-                elif 'format_note' in f:
-                    format = f['format_note']
-                # extract size if available
-                size = 0
-                if 'filesize' in f:
-                    size = f['filesize']
-                elif 'filesize_approx' in f:
-                    size = f['filesize_approx']
-                if size == 0:
-                    size = '??'
-                else:
-                    try:
-                        size = '{:0.2f}'.format(int(size) * 0.000001)
-                    except:
-                        size = '??'
+                ## extract format (used for button label)
+                # format = id
+                # if 'format' in f:
+                #     format = f['format']
+                # elif 'format_note' in f:
+                #     format = f['format_note']
+                # # extract size if available
+                # size = 0
+                # if 'filesize' in f:
+                #     size = f['filesize']
+                # elif 'filesize_approx' in f:
+                #     size = f['filesize_approx']
+                # if size == 0:
+                #     size = '??'
+                # else:
+                #     try:
+                #         size = '{:0.2f}'.format(int(size) * 0.000001)
+                #     except:
+                #         size = '??'
                 ext = f['ext']
                 # keyboard button label
-                label = '{} - .{} ({} MB)'.format(format, ext, size)
+                # label = '{} - .{} ({} MB)'.format(format, ext, size)
+                label = '{}.{}'.format(f['format_note'], ext)
                 # keep request in ram
                 options.append([id, update.message.text, True])
                 # buttons carry the id given by system for the user
