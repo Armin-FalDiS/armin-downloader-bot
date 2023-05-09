@@ -145,6 +145,9 @@ async def check_vid(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 # skip if the file seems to contain no audio (attempt to skip non audible options)
                 if 'acodec' in f and f['acodec'] == 'none':
                     continue
+                # skip unwanted extensions
+                if ('ext' in f and f['ext'] == 'webm') or ('audio_ext' in f and f['audio_ext'] == 'webm'):
+                    continue
                 # check if the file is a video
                 is_video = True
                 if ('height' in f and f['height'] == 'None') or ('resolution' in f and f['resolution'] == 'audio only') or ('audio_ext' in f and f['audio_ext'] != 'none'):
@@ -228,7 +231,7 @@ async def download_vid(update: Update, context: ContextTypes.DEFAULT_TYPE):
         os.rename(filename, fn)
 
         # extract duration
-        output = subprocess.run(['ffprobe', '-v', 'error', '-select_streams', 'v:0', '-show_entries',
+        output = subprocess.run(['ffprobe', '-v', 'error', '-select_streams', 'a:0', '-show_entries',
                                 'stream=duration', '-of', 'default=noprint_wrappers=1:nokey=1', fn], stdout=subprocess.PIPE)
         duration = int(float(output.stdout.decode('ascii')))
 
