@@ -89,6 +89,7 @@ def new_vip(id: int):
     vip.append(id)
     update_vip_list()
 
+
 async def vip_maker(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handler that puts the user in the whitelist
     """
@@ -136,22 +137,28 @@ async def check_vid(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 return
             # empty formats is wierd (since the error handler should catch it)
             if len(formats) == 0:
-                await ans.edit_text('Jesus horatio ! I dunno what happened with that one !!')
+                await ans.edit_text('Jesus horatio! I dunno what happened with that one !!')
                 return
             # create the buttons for user
             keyboard = []
             options = []
+
+            # add music (audio) option
+            label = '~ Music / Audio ~'
+            options.append(['ba', update.message.text, False])
+            keyboard.append([InlineKeyboardButton(
+                label, callback_data=len(options) - 1)])
+
             for f in formats:
                 # skip if the file seems to contain no audio (attempt to skip non audible options)
                 if 'acodec' in f and f['acodec'] == 'none':
                     continue
                 # skip unwanted extensions
-                if ('ext' in f and f['ext'] == 'webm') or ('audio_ext' in f and f['audio_ext'] == 'webm'):
+                if ('ext' in f and f['ext'] == 'webm'):
                     continue
-                # check if the file is a video
-                is_video = True
+                # skip audio files
                 if ('height' in f and f['height'] == 'None') or ('resolution' in f and f['resolution'] == 'audio only') or ('audio_ext' in f and f['audio_ext'] != 'none'):
-                    is_video = False
+                    continue
                 # grab format identifier (used for download)
                 id = f['format_id']
                 # extract format (used for button label)
@@ -174,17 +181,17 @@ async def check_vid(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     except:
                         size = '??'
                 ext = f['ext']
-                # keyboard button lablel
+                # keyboard button label
                 label = '{} - .{} ({} MB)'.format(format, ext, size)
                 # keep request in ram
-                options.append([id, update.message.text, is_video])
+                options.append([id, update.message.text, True])
                 # buttons carry the id given by system for the user
                 keyboard.append([InlineKeyboardButton(
                     label, callback_data=len(options) - 1)])
 
             # keep options for the user (each user can only have one active request)
             requests[update.effective_user.id] = options
-            # prompt use to choose the quality
+            # prompt user to choose the quality
             await ans.edit_text('What be the Quality G ?', reply_markup=InlineKeyboardMarkup(keyboard))
 
 
@@ -261,13 +268,14 @@ async def download_vid(update: Update, context: ContextTypes.DEFAULT_TYPE):
             # clean up message
             await query.delete_message()
 
+
 async def cleanup(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Cleans up the download directory
     """
     if update.effective_chat and update.effective_user:
         if not_vip(update.effective_user.id):
             return
-        
+
         subprocess.run('rm -rf ' + os.path.join(out_dir, '*'), shell=True)
 
         await update.message.reply_text('All cleaned up!')
