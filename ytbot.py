@@ -241,7 +241,11 @@ async def download_vid(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # extract duration
         output = subprocess.run(['ffprobe', '-v', 'error', '-select_streams', 'a:0', '-show_entries',
                                 'stream=duration', '-of', 'default=noprint_wrappers=1:nokey=1', fn], stdout=subprocess.PIPE)
-        duration = int(float(output.stdout.decode('ascii')))
+        duration = 0
+        try:
+            duration = int(float(output.stdout.decode('ascii')))
+        except:
+            pass
 
         # Telegram has a limit of 50 MB for bot upload
         if os.path.getsize(fn) > 50000000:
