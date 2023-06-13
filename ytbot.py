@@ -145,7 +145,7 @@ async def check_vid(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
             # add music (audio) option
             label = '~ Music / Audio ~'
-            options.append(['ba', update.message.text, False])
+            options.append(['bestaudio[ext!=webm]', update.message.text, False])
             keyboard.append([InlineKeyboardButton(
                 label, callback_data=len(options) - 1)])
 
@@ -233,7 +233,8 @@ async def download_vid(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await query.edit_message_text('Error proccessing your request :(')
 
         # new file name replacing unwanted chars with underscore
-        fn = re.sub('[\s,#,\',"]', '_', filename)
+        fn = re.sub('[#,\',"]', '', filename)
+        fn = re.sub('\s', '_', fn)
 
         # rename file
         os.rename(filename, fn)
