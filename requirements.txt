@@ -1,2 +1,2 @@
-python_telegram_bot[webhooks]==20.2
-yt_dlp==2023.3.4
+python_telegram_bot[webhooks]==20.6
+yt_dlp==2023.11.16
