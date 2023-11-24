@@ -20,13 +20,14 @@ webhook_url = ''
 super_secret_password = ''
 out_dir = ''
 dl_url = ''
+url_path = ''
 
 # check for config file
 if not os.path.exists('bot.conf'):
     print('Bot config file is missing !')
     # create empty config file
     with open('bot.conf', 'w') as conf:
-        conf.write('port=22212\napi_token=13750908:ArMiN-AFD-l30T-T0KeN\nwebhook_url=https://armin.com:88/afd/ytbot\npass=SUPER_SECRET\nout_dir=/home/Downloads/\ndl_url=https://armin.com/afd/files/')
+        conf.write('port=22212\napi_token=13750908:ArMiN-AFD-l30T-T0KeN\nwebhook_url=https://armin.com:88/afd/ytbot\npass=SUPER_SECRET\nout_dir=/home/Downloads/\ndl_url=https://armin.com/afd/files/\nurl_path=dlbot123')
     exit()
 
 # parse config file
@@ -49,6 +50,8 @@ with open('bot.conf', 'r') as conf:
         out_dir = config['out_dir'].strip()
     if 'dl_url' in config:
         dl_url = config['dl_url'].strip()
+    if 'url_path' in config:
+        url_path = config['url_path'].strip()
 
 # no api token or webhook url no bot
 if api_token == '' or webhook_url == '':
@@ -161,7 +164,7 @@ async def check_vid(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     continue
                 # grab format identifier (used for download)
                 id = f['format_id']
-                ## extract format (used for button label)
+                # extract format (used for button label)
                 # format = id
                 # if 'format' in f:
                 #     format = f['format']
@@ -305,6 +308,6 @@ app.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), check_vid))
 app.add_handler(CallbackQueryHandler(download_vid))
 
 # start the webhook
-app.run_webhook(port=port, webhook_url=webhook_url, stop_signals=None)
+app.run_webhook(port=port, webhook_url=webhook_url, stop_signals=None, url_path=url_path)
 
 # app.run_polling(stop_signals=None)
