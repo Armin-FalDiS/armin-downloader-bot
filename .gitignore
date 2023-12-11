@@ -6,3 +6,4 @@ include
 pyvenv.cfg
 share
 lib64
+.venv
