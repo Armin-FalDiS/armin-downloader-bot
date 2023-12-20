@@ -1,5 +1,4 @@
 from functools import partial
-import http
 from yt_dlp import YoutubeDL
 import logging
 import os
@@ -7,7 +6,7 @@ import subprocess
 import re
 from urllib.parse import quote
 from pathlib import Path
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, Message
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler, filters, CallbackQueryHandler
 from telegram.constants import FileSizeLimit
 import gdown
@@ -295,14 +294,14 @@ async def download_vid(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await context.bot.send_audio(update.effective_chat.id, open(fn, 'rb'), duration=duration)
 
         # clean up message
-        await query.delete_message()
+        query.delete_message()
 
     if update.message:
         update.message.delete()
 
 
 async def download_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    ans = await update.message.reply_text('Downloading...')
+    ans: Message = await update.message.reply_text('Downloading...')
 
     # Try to get the running loop
     try:
@@ -317,21 +316,21 @@ async def download_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Telegram has a limit of 50 MB for bot upload
     if os.path.getsize(fn) > FileSizeLimit.FILESIZE_UPLOAD:
         # prompt user to download the file from server
-        await ans.edit_message_text('That file is way too big for me to fit it through your small tiny hole. Go get it yourself: \n\n' + quote(dl_url + fn))
+        await ans.edit_text('That file is way too big for me to fit it through your small tiny hole. Go get it yourself: \n\n' + quote(dl_url + fn))
     else:
         # upload file to telegram
-        await ans.edit_message_text(text='Uploading to telegram...')
+        await ans.edit_text(text='Uploading to telegram...')
         await context.bot.send_document(update.effective_chat.id, open(os.path.join(out_dir, fn), 'rb'))
 
         # clean up message
-        await ans.delete_message()
+        await ans.delete()
 
     if update.message:
         update.message.delete()
 
 
 async def download_folder(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    ans = await update.message.reply_text('Downloading...')
+    ans: Message = await update.message.reply_text('Downloading...')
 
     # Try to get the running loop
     try:
@@ -343,7 +342,7 @@ async def download_folder(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     files = await asyncio.get_running_loop().run_in_executor(None, partial(gdown.download_folder, url=update.message.text, output=out_dir, quiet=True))
 
-    await ans.edit_message_text('Yo big boy lots of files here. Go get them yourself: \n\n' + '\n'.join([f'{dl_url}{quote(file)}' for file in files]))
+    await ans.edit_text('Yo big boy lots of files here. Go get them yourself: \n\n' + '\n'.join([f'{dl_url}{quote(file)}' for file in files]))
 
     if update.message:
         update.message.delete()
