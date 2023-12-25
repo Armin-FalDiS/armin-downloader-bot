@@ -320,7 +320,7 @@ async def download_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await update.message.delete()
 
     except Exception as err:
-        ans.edit_text(f"There have been... complications...\n{str(err)}")
+        await ans.edit_text(f"There have been... complications...\n{str(err)}")
 
 
 async def download_folder(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -334,7 +334,7 @@ async def download_folder(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if update.message:
             await update.message.delete()
     except Exception as err:
-        ans.edit_text(f"There have been... complications...\n{str(err)}")
+        await ans.edit_text(f"There have been... complications...\n{str(err)}")
 
 
 async def cleanup(update: Update, context: ContextTypes.DEFAULT_TYPE):
