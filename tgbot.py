@@ -312,13 +312,9 @@ async def download_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
             # upload file to telegram
             await ans.edit_text(text='Uploading to telegram...')
             await context.bot.send_document(update.effective_chat.id, open(os.path.join(out_dir, fn), 'rb'))
+            await ans.delete()
 
-        # clean up message
-        await ans.delete()
-
-        if update.message:
-            await update.message.delete()
-
+        await update.message.delete()
     except Exception as err:
         await ans.edit_text(f"There have been... complications...\n{str(err)}")
 
@@ -331,8 +327,7 @@ async def download_folder(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         await ans.edit_text('Yo big boy lots of files here. Go get them yourself: \n\n' + '\n'.join([f'{dl_url}{quote(file)}' for file in files]))
 
-        if update.message:
-            await update.message.delete()
+        await update.message.delete()
     except Exception as err:
         await ans.edit_text(f"There have been... complications...\n{str(err)}")
 
