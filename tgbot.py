@@ -1,4 +1,3 @@
-from functools import partial
 from yt_dlp import YoutubeDL
 import logging
 import os
@@ -10,7 +9,6 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, Message
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler, filters, CallbackQueryHandler
 from telegram.constants import FileSizeLimit
 import gdown
-import asyncio
 
 # regexes
 gdrive_file = r'https?:\/\/drive\.google\.com\/(?:u\/\d+\/uc\?id=|file\/d\/|uc\?id=)[a-zA-Z0-9-_]+'
@@ -303,49 +301,40 @@ async def download_vid(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def download_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ans: Message = await update.message.reply_text('Downloading...')
 
-    # Try to get the running loop
     try:
-        loop = asyncio.get_running_loop()
-    except RuntimeError:
-        # If no running loop, create a new one
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
+        fn = gdown.download(url=update.message.text, output=out_dir, quiet=True, resume=True, fuzzy=True)
 
-    fn = await asyncio.get_running_loop().run_in_executor(None, partial(gdown.download, url=update.message.text, output=out_dir, quiet=True, resume=True))
-
-    # Telegram has a limit of 50 MB for bot upload
-    if os.path.getsize(fn) > FileSizeLimit.FILESIZE_UPLOAD:
-        # prompt user to download the file from server
-        await ans.edit_text('That file is way too big for me to fit it through your small tiny hole. Go get it yourself: \n\n' + quote(dl_url + fn))
-    else:
-        # upload file to telegram
-        await ans.edit_text(text='Uploading to telegram...')
-        await context.bot.send_document(update.effective_chat.id, open(os.path.join(out_dir, fn), 'rb'))
+        # Telegram has a limit of 50 MB for bot upload
+        if os.path.getsize(fn) > FileSizeLimit.FILESIZE_UPLOAD:
+            # prompt user to download the file from server
+            await ans.edit_text('That file is way too big for me to fit it through your small tiny hole. Go get it yourself: \n\n' + quote(dl_url + fn))
+        else:
+            # upload file to telegram
+            await ans.edit_text(text='Uploading to telegram...')
+            await context.bot.send_document(update.effective_chat.id, open(os.path.join(out_dir, fn), 'rb'))
 
         # clean up message
         await ans.delete()
 
-    if update.message:
-        update.message.delete()
+        if update.message:
+            await update.message.delete()
+
+    except Exception as err:
+        ans.edit_text(f"There have been... complications...\n{str(err)}")
 
 
 async def download_folder(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ans: Message = await update.message.reply_text('Downloading...')
 
-    # Try to get the running loop
     try:
-        loop = asyncio.get_running_loop()
-    except RuntimeError:
-        # If no running loop, create a new one
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
+        files = gdown.download_folder(url=update.message.text, output=out_dir, quiet=True, remaining_ok=True)
 
-    files = await asyncio.get_running_loop().run_in_executor(None, partial(gdown.download_folder, url=update.message.text, output=out_dir, quiet=True))
+        await ans.edit_text('Yo big boy lots of files here. Go get them yourself: \n\n' + '\n'.join([f'{dl_url}{quote(file)}' for file in files]))
 
-    await ans.edit_text('Yo big boy lots of files here. Go get them yourself: \n\n' + '\n'.join([f'{dl_url}{quote(file)}' for file in files]))
-
-    if update.message:
-        update.message.delete()
+        if update.message:
+            await update.message.delete()
+    except Exception as err:
+        ans.edit_text(f"There have been... complications...\n{str(err)}")
 
 
 async def cleanup(update: Update, context: ContextTypes.DEFAULT_TYPE):
