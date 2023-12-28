@@ -254,7 +254,7 @@ async def download_vid(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     # new file name replacing unwanted chars with underscore
     fn = re.sub('[#,\',"]', '', filename)
-    fn = re.sub('\s', '_', fn)
+    fn = quote(fn, ':/')
 
     # rename file
     os.rename(filename, fn)
@@ -307,7 +307,7 @@ async def download_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # Telegram has a limit of 50 MB for bot upload
         if os.path.getsize(fn) > FileSizeLimit.FILESIZE_UPLOAD:
             # prompt user to download the file from server
-            await ans.edit_text('That file is way too big for me to fit it through your small tiny hole. Go get it yourself: \n\n' + quote(dl_url + fn))
+            await ans.edit_text('That file is way too big for me to fit it through your small tiny hole. Go get it yourself: \n\n' + quote(dl_url + fn, ':/'))
         else:
             # upload file to telegram
             await ans.edit_text(text='Uploading to telegram...')
@@ -325,7 +325,7 @@ async def download_folder(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         files = gdown.download_folder(url=update.message.text, output=out_dir, quiet=True, remaining_ok=True)
 
-        await ans.edit_text('Yo big boy lots of files here. Go get them yourself: \n\n' + '\n'.join([f'{dl_url}{quote(file)}' for file in files]))
+        await ans.edit_text('Yo big boy lots of files here. Go get them yourself: \n\n' + '\n'.join([f'{dl_url}{quote(file, ":/")}' for file in files]))
 
         await update.message.delete()
     except Exception as err:
